@@ -1,0 +1,174 @@
+.topbar{
+    background: #001733;
+    height: 5%;
+    top:0;
+    /* padding-top: 5px; */
+}
+
+.timer{
+    display: inline;
+    float: right;
+}
+
+#timer-display{
+    margin-top: 5px;
+    display: inline;
+    background-color: white;
+    padding: 5px;
+}
+
+.middlebar{
+    display: flex;
+    height: 84%;
+}
+
+.passage{
+    flex: 1;
+    font-size: 14px;
+    overflow-y: auto;
+}
+
+#passage{
+
+}
+
+.highlight {
+    background-color: #87ceeb !important;
+}
+
+.passage-highlight {
+    background-color: yellow;
+}
+
+.questions{
+    flex: 1;
+}
+
+.bottombar{
+    height: 10%;
+}
+
+.flag{
+    margin-top: 5px;
+    display: flex;
+}
+
+.flag a{
+    flex: 1;
+    text-align: center;
+    color: white;
+}
+
+.pagination{
+    display: flex;
+}
+
+.pagination-active{
+    background-color: red !important; 
+}
+
+.pagination a{
+    font-weight: bold;
+    flex: 1;
+    text-decoration: none;
+    border: black 1px solid;
+    text-align: center;
+    height: 28px;
+    color: black;
+    
+}
+
+.pagination-answered{
+    background-color:grey;
+}
+
+/* .pagination a{
+    text-decoration: none;
+    text-align: center;
+    padding: 3px;
+    font-weight: bold;
+    background-color: white;
+    
+    margin: 0;
+    width: 20px;
+    font-size: 12px;
+    float: left;
+} */
+
+.overlay {
+    position: fixed; /* Sit on top of the page content */
+    display: table; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0; 
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white; /* Black background with opacity */
+    opacity: 0;
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    text-align: center;
+    -webkit-transition: opacity 0.3s ease-out;
+    -moz-transition: opacity 0.3s ease-out;
+    transition: opacity 0.3s ease-out;
+    visibility: hidden;
+}
+
+.overlay.overlay-on {
+    opacity: 1;
+    display: table;
+    visibility: visible;
+}
+
+#overlay-text{
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.user-answers{
+    position:fixed;
+    width: 50%;
+    height: 80%;
+    background-color: white;
+    border: 2px solid black;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    opacity: 0;
+    -webkit-transition: opacity 0.3s ease-out;
+    -moz-transition: opacity 0.3s ease-out;
+    transition: opacity 0.3s ease-out;
+    visibility: hidden;
+    text-align: center;
+}
+
+.user-answers-display{
+    display: flex;
+    text-align: left;
+}
+
+.user-answers-display p{
+    flex: 1;
+}
+
+.user-answers.user-answers-active{
+    opacity: 1;
+    visibility: visible;
+}
+
+html, body{
+    margin: 0;
+    height: 100%;
+    font-family: "Segoe UI", "Noto Sans", Helvetica Neue, Helvetica, Arial, sans-serif
+}
+
+body {
+    line-height: 20px;
+}
+
+div {
+    padding: 0 10px;
+}

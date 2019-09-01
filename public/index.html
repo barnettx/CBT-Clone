@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="./papaparse.js"></script>
+    <script src="./rangy.js"></script>
+    <script src="https://kit.fontawesome.com/f75c453782.js"></script>
+    <script src="./index.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+    <title>CBT Clone</title>
+</head>
+
+<body>
+    <div class="topbar">
+        <button onclick="prevQuestion()">Prev</button>
+        <button>Nav</button>
+        <button onclick="nextQuestion()">Next</button>
+        <span style="margin-right:10%;"></span>
+        <button onclick="toggleShowUserAnswers()">Your Answers</button>
+        <div class="timer">
+            <h2 id="timer-display">Time</h2>
+            <button id="timer-toggle" onclick="toggleTimer()">Start</button>
+            <button onclick="resetTimer()">Reset</button>
+        </div>
+    </div>
+    <div class="middlebar">
+        <div class="passage">
+            <p id="passage-intro">INTRO</p>
+            <p id="passage"></p>
+        </div>
+        <div class="questions">
+            <h1>question
+                <span id="question-number">1</span>
+            </h1>
+            <p id="question"></p>
+            <form class="options">
+                <input type="radio" name="answer" id="option1">
+                <label for="option1"></label>
+                <br>
+                <input type="radio" name="answer" id="option2">
+                <label for="option2"></label>
+                <br>
+                <input type="radio" name="answer" id="option3">
+                <label for="option3"></label>
+                <br>
+                <input type="radio" name="answer" id="option4">
+                <label for="option4"></label>
+                <br>
+            </form>
+
+        </div>
+    </div>
+    <div class="bottombar">
+        <div class="flag"></div>
+        <div class="pagination"></div>
+    </div>
+
+    <div class="overlay">
+        <h1 id="overlay-text">Processing...</h1>
+    </div>
+
+    <div class="user-answers">
+
+        <div class="user-answers-display">
+            <p class="user-answers-display user-answers-1-20"></p>
+            <p class="user-answers-display user-answers-21-40"></p>
+        </div>
+
+        <button onclick="toggleShowUserAnswers()">
+            Close
+        </button>
+    </div>
+</body>
+
+</html>
