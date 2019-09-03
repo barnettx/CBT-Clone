@@ -6,9 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-146906984-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-146906984-1');
+    </script>
+
+
     <script src="./papaparse.js"></script>
     <script src="./rangy.js"></script>
     <script src="https://kit.fontawesome.com/f75c453782.js"></script>
+    <script src='https://cdn.tiny.cloud/1/m6akfv4hqr1qr4yjuhp91an9km140qpu4zcjeovkha8xnmm9/tinymce/5/tinymce.min.js' referrerpolicy="origin"></script>
+
     <script src="./index.js"></script>
 
     <link rel="stylesheet" href="style.css">
@@ -16,12 +29,22 @@
 </head>
 
 <body>
+
     <div class="topbar">
         <button onclick="prevQuestion()">Prev</button>
         <button>Nav</button>
         <button onclick="nextQuestion()">Next</button>
-        <span style="margin-right:10%;"></span>
+        <span style="margin-right:20px;"></span>
         <button onclick="toggleShowUserAnswers()">Your Answers</button>
+
+        <span style="margin-right:10%;"></span>
+
+        <button onclick="toggleShowUserFile()" style="background-color: yellow">YOUR CUSTOM FILE</button>
+        <button id="edit-toggle" onclick="toggleEditing()">Enable Editing</button>
+        <button onclick="downloadPassagesTxt()">Save Passages</button>
+        <button onclick="downloadQuestionsTxt()">Save Questions</button>
+        <button id="fake-processing-toggle" onclick="toggleFakeProcessing()">Disable Fake Processing</button>
+
         <div class="timer">
             <h2 id="timer-display">Time</h2>
             <button id="timer-toggle" onclick="toggleTimer()">Start</button>
@@ -33,25 +56,31 @@
             <p id="passage-intro">INTRO</p>
             <p id="passage"></p>
         </div>
-        <div class="questions">
+        <!-- <div class="questions"> -->
+        <div class="questions" id="test">
             <h1>question
                 <span id="question-number">1</span>
             </h1>
-            <p id="question"></p>
-            <form class="options">
-                <input type="radio" name="answer" id="option1">
-                <label for="option1"></label>
-                <br>
-                <input type="radio" name="answer" id="option2">
-                <label for="option2"></label>
-                <br>
-                <input type="radio" name="answer" id="option3">
-                <label for="option3"></label>
-                <br>
-                <input type="radio" name="answer" id="option4">
-                <label for="option4"></label>
-                <br>
-            </form>
+            <div id="question-test-mode">
+                <p id="question"></p>
+                <form class="options">
+                    <input type="radio" name="answer" id="option1">
+                    <label for="option1"></label>
+                    <br>
+                    <input type="radio" name="answer" id="option2">
+                    <label for="option2"></label>
+                    <br>
+                    <input type="radio" name="answer" id="option3">
+                    <label for="option3"></label>
+                    <br>
+                    <input type="radio" name="answer" id="option4">
+                    <label for="option4"></label>
+                    <br>
+                </form>
+            </div>
+            <div id="question-editor" style="display:none;">
+                hello
+            </div>
 
         </div>
     </div>
@@ -71,10 +100,41 @@
             <p class="user-answers-display user-answers-21-40"></p>
         </div>
 
-        <button onclick="toggleShowUserAnswers()">
+        <div>
+            <button onclick="toggleShowUserAnswers()">
+                Close
+            </button>
+        </div>
+
+    </div>
+
+    <div class="user-file">
+
+        <label for="passagestxt">passages.txt</label>
+        <input type="file" name="passagestxt" id="custom-passages">
+        <br>
+
+        <label for="questiontxt">questions.txt</label>
+        <input type="file" name="questiontxt" id="custom-questions">
+        <br>
+
+        <!-- <button id="passage-reference-highlighting" onclick="togglePassageHighlights()">Enable passage reference highlighting</button>
+        <p>Enables you to create the highlights which the passage questions refer to. These special highlights are yellow. This is instead of the normal blue highlighting</p>
+        <br> -->
+
+        <!-- <button onclick="downloadPassagesTxt()">Save highlighted passage</button>
+        <p>Saves a copy of your passage.txt with all the passage highlights from questions</p>
+        <br> -->
+
+        <button onclick="toggleShowUserFile()">
             Close
         </button>
     </div>
+
+    <div id="processor" style="display:none;">
+
+    </div>
+
 </body>
 
 </html>

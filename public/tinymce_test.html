@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src='https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js' referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: '#editor',
+            height: 500,
+            formats: {
+                // Other formats...
+                custom_format: { inline: 'span', attributes: { class: 'passage-highlight' } }
+            },
+            // Other default toolbars
+            toolbar: "mybutton",
+
+            // Finally, setup your button
+            setup: function (editor) {
+                editor.ui.registry.addButton('mybutton', {
+                    text: 'My Button',
+                    // icon: false,
+                    onAction: function () {
+                        tinymce.activeEditor.formatter.toggle('custom_format')
+                    },
+                    // onSetup: function () {
+                    //     ctrl = this,
+                    //         editor.on('NodeChange', function (e) {
+                    //             ctrl.active(e.element.className == "some_css_class")
+                    //         });
+                    // }
+                });
+            }
+        })
+            .then(() => {
+                tinymce.get("editor").formatter.register('mycustomformat', {
+                    inline: 'span',
+
+                    // styles: { color: '#ff0000' }
+                });
+
+                tinymce.get("editor").formatter.apply('mycustomformat');
+            });
+
+
+        function getContent() {
+            console.log(tinymce.get("editor").getContent());
+        }
+    </script>
+    <style>
+        .passage-highlight {
+            background-color: yellow;
+        }
+
+        .tox-notifications-container {
+            display:none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>TinyMCE Quick Start Guide</h1>
+    <form method="post">
+        <textarea id="editor" name="editor" style="height: 80%;">Hello, World!</textarea>
+    </form>
+    <button onclick="getContent()">Get Content</button>
+</body>
+
+</html>

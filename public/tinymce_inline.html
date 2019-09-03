@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <script src='https://cdn.tiny.cloud/1/m6akfv4hqr1qr4yjuhp91an9km140qpu4zcjeovkha8xnmm9/tinymce/5/tinymce.min.js' referrerpolicy="origin"></script>
+
+    <script>
+        tinymce.init({
+            selector: "#passage",
+            inline: true,
+            menubar: false,
+            formats: {
+                // Other formats...
+                custom_format: { inline: 'span', attributes: { class: 'passage-highlight' } }
+            },
+            toolbar: "mybutton",
+            setup: function (editor) {
+                editor.ui.registry.addButton('mybutton', {
+                    text: 'My Button',
+                    // icon: false,
+                    onAction: function () {
+                        tinymce.activeEditor.formatter.toggle('custom_format')
+                    },
+                });
+            }
+        })
+    </script>
+
+    <style>
+        /* .tox-notifications-container {
+            display: none;
+        } */
+
+        .passage-highlight {
+            background-color: yellow;
+        }
+
+        #passage{
+            margin-top: 10%;
+            height: 50%;
+            border: 2px solid black;
+        }
+
+        html, body{
+            height: 100%;
+            margin: 0;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="passage">
+        <p>TEST PASSAGE</p>
+    </div>
+</body>
+
+</html>
