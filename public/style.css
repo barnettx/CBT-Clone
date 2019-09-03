@@ -24,6 +24,7 @@
 .middlebar{
     display: flex;
     height: 84%;
+    width: 98%;
 }
 
 .passage{
