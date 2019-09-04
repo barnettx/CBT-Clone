@@ -1,7 +1,7 @@
 // setup variables
 var passageIntros = new Array(4);
 var passages = new Array(4);
-var questions;
+var questions = [];
 var currentQuestion = 1;
 var currentPassage = 1;
 var serialisedHighlights = new Array(40);
@@ -29,6 +29,12 @@ function toggleFakeProcessing() {
     document.querySelector("#fake-processing-toggle").innerHTML = isFakeProcessingEnabled ? "Disable fake processing" : "Enable fake processing";
 }
 
+var isFindEnabled = false;
+function toggleFind() {
+    isFindEnabled = !isFindEnabled;
+    document.querySelector("#find-toggle").innerHTML = isFindEnabled ? "Disable Ctrl-F find" : "Enable Ctrl-F find";
+}
+
 var passageHighlightsActive = false;
 
 function togglePassageHighlights() {
@@ -45,7 +51,7 @@ let option4Elm = document.querySelector("#option4");
 let passageHighlightFormats = {};
 let i;
 for (i = 1; i <= 40; i++) {
-    passageHighlightFormats["Q" + i] = { inline: 'span', attributes: { class: "Q" + i } };
+    passageHighlightFormats["Q" + i] = { inline: 'span', attributes: { class: "Q" + i }, exact: true };
 }
 
 let tinyMCEPassagePromise;
@@ -73,7 +79,7 @@ tinyMCEPassagePromise = tinymce.init({
             },
             onSetup: function (api) {
                 editor.on('NodeChange', function (e) {
-                    api.setActive(e.element.className.includes("Q"))
+                    api.setActive(e.element.className.includes("Q"+currentQuestion))
                 });
             }
         });
@@ -82,7 +88,8 @@ tinyMCEPassagePromise = tinymce.init({
         editor.on('Change', function (e) {
             passageDomToData();
         });
-    }
+    },
+
 });
 
 tinymce.init({
@@ -109,7 +116,33 @@ questionEditor = tinymce.init({
         editor.on('Change', function (e) {
             questionEditorDomToData();
         });
-    }
+
+        editor.on("paste", function(e){
+            let paste = (event.clipboardData || window.clipboardData).getData('text');
+            
+            (event.clipboardData || window.clipboardData).setData("text/plain", paste.toUpperCase());
+        })
+    },
+    plugins: "paste",
+    paste_as_text: true,
+    paste_preprocess: function(plugin, args) {
+        console.log(args);
+        console.log(args.content);
+        args.content = args.content.replace(/<\/?(br)\b[^<>]*>/g, " ")
+                        .replace(" A."," </p><p>A.")
+                        .replace(" B."," </p><p>B.")
+                        .replace(" C."," </p><p>C.")
+                        .replace(" D."," </p><p>D.")
+                        .replace(" F."," </p><p>F.")
+                        .replace(" G."," </p><p>G.")
+                        .replace(" H."," </p><p>H.")
+                        .replace(" J."," </p><p>J.")
+        args.content = "<p>" + args.content + "</p>";
+                        // .replace("B.","<br>B.")
+        
+        console.log(args.content);
+        // args.content += ' preprocess';
+      },
 });
 
 
@@ -135,7 +168,7 @@ function passageIntroDomToData() {
     processor.innerHTML = "";
 }
 
-function isQuestionEditorValid(){
+function isQuestionEditorValid() {
     let questionData = tinymce.get("question-editor").getContent({ format: "text" }).split("\n\n");
     return questionData.length == 5;
 
@@ -144,6 +177,7 @@ function isQuestionEditorValid(){
 function questionEditorDomToData() {
     let question = tinymce.get("question-editor").getContent({ format: "text" }).split("\n\n");
     questions[currentQuestion - 1] = question;
+    console.log(question);
 }
 
 
@@ -154,14 +188,14 @@ function toggleTinyMCEHighlight() {
 function toggleEditing() {
 
     //make sure the question editor is valid
-    if(isEditing&&!isQuestionEditorValid()){
+    if (isEditing && !isQuestionEditorValid()) {
         alert("Cannot convert edited text to question. Ensure 5 lines of text. \nAns.\nOption 1.\nOption 2.\nOption 3.\nOption 4.")
-        return;        
+        return;
     }
     isEditing = !isEditing;
 
     document.querySelector("#edit-toggle").innerHTML = isEditing ? "Disable Editing" : "Enable Editing";
-    isEditing? document.querySelector(".topbar").classList.add("topbar-editing") : document.querySelector(".topbar").classList.remove("topbar-editing")
+    isEditing ? document.querySelector(".topbar").classList.add("topbar-editing") : document.querySelector(".topbar").classList.remove("topbar-editing")
 
     tinymce.get("passage-intro").setMode(isEditing ? "design" : "readonly");
     tinymce.get("passage").setMode(isEditing ? "design" : "readonly");
@@ -181,9 +215,9 @@ function toggleEditing() {
             + "<p>" + questions[currentQuestion - 1][4] + "</p>", { format: "raw" })
     } else {
 
-        
+
         questionEditorDomToData();
-        
+
         let question = questions[currentQuestion - 1];
         console.log(question);
 
@@ -198,7 +232,7 @@ function toggleEditing() {
         }
 
         document.querySelector("#question-test-mode").style.display = "block";
-        document.querySelector("#question-editor").style.display = "none";        
+        document.querySelector("#question-editor").style.display = "none";
 
     }
 
@@ -259,38 +293,35 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // document.querySelector(".middlebar").addEventListener("dblclick", function () {
-    // console.log("dblclick");
-    // highlighter.unhighlightSelection();
-    // });
 
     //fetch api
-    fetchQuestionsPromise = fetch("./questions68A.txt", {
+    fetchQuestionsPromise = fetch("./questions68A.1.txt", {
         'Content-Type': 'text/plain; charset=UTF-8'
     })
         .then(function (res) {
             return res.text();
         })
         .then(function (data) {
-            Papa.parse(data, {
-                delimiter: "\t",
-                complete: function (results, file) {
-                    console.log("Parsing complete:", results, file);
-                    questions = results.data;
-                    render();
-                }
-            })
+            data = data.split(/\n\s*\n/);
+            let i;
+            questions = [];
+            for (i = 0; i < 40; i++) {
+                let row = data[i].split(/\n/);
+                row.shift();                                
+                questions.push(row);
+            }
+            render();
         });
-    
+
     Promise.all([questionEditor, fetchQuestionsPromise])
-    .then(()=>{
-        tinymce.get("question-editor").setContent(
-            "<p>" + questions[currentQuestion - 1][0] + "</p>"
-            + "<p>" + questions[currentQuestion - 1][1] + "</p>"
-            + "<p>" + questions[currentQuestion - 1][2] + "</p>"
-            + "<p>" + questions[currentQuestion - 1][3] + "</p>"
-            + "<p>" + questions[currentQuestion - 1][4] + "</p>", { format: "raw" })
-    });
+        .then(() => {
+            tinymce.get("question-editor").setContent(
+                "<p>" + questions[currentQuestion - 1][0] + "</p>"
+                + "<p>" + questions[currentQuestion - 1][1] + "</p>"
+                + "<p>" + questions[currentQuestion - 1][2] + "</p>"
+                + "<p>" + questions[currentQuestion - 1][3] + "</p>"
+                + "<p>" + questions[currentQuestion - 1][4] + "</p>", { format: "raw" })
+        });
     //init passage old version 
     // refreshPassage();
 
@@ -352,6 +383,10 @@ document.addEventListener("DOMContentLoaded", function () {
         passagesFileName = document.querySelector("#custom-passages").files[0].name;
         document.querySelector("#custom-passages").files[0].text()
             .then((data) => {
+                if (!validPassagesData(data)) {
+                    alert("Invalid Passages Txt. Please Check Again.")
+                    return
+                }
                 dataToPassage(data);
                 render();
             });
@@ -364,17 +399,24 @@ document.addEventListener("DOMContentLoaded", function () {
         questionsFileName = document.querySelector("#custom-questions").files[0].name;
         document.querySelector("#custom-questions").files[0].text()
             .then((data) => {
-                Papa.parse(data, {
-                    delimiter: "\t",
-                    complete: function (results, file) {
-                        console.log("Parsing complete:", results, file);
-                        questions = results.data;
-                        render();
-                    }
-                })
+                
+                data = data.split(/\n\s*\n/);
+                if (!validQuestionsData(data)) {
+                    alert("Invalid Questions Txt. Please Check Again.")
+                    return
+                }
+                
+                let i;
+                questions = [];
+                for (i = 0; i < 40; i++) {
+                    let row = data[i].split(/\n/);
+                    row.shift();
+                    questions.push(row);
+                }
+                render();
             })
 
-    })
+    });
 
     //create style sheet to add yellow passage highlights to question
     passageHighlightsStyle = document.createElement('style');
@@ -384,6 +426,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 }, false);
 
+function validPassagesData(data) {
+    data = data.split("***");
+    data.shift();
+    return data.length == 16
+}
 
 function dataToPassage(data) {
     data = data.split("***");
@@ -401,6 +448,10 @@ function dataToPassage(data) {
     renderPassage();
 }
 
+function validQuestionsData(data) {
+    return data.length == 40 || data.length == 41;
+}
+
 function downloadPassagesTxt() {
 
     let data = "";
@@ -413,27 +464,32 @@ function downloadPassagesTxt() {
     }
 
 
-    download(data, 
-        (questionsFileName ? questionsFileName.replace(".txt"," ") : "passages ")+getDateString()+".txt"
-        ,"text/plain");
+    download(data,
+        (passagesFileName ? passagesFileName.replace(".txt", " ") : "passages ") + getDateString() + ".txt"
+        , "text/plain");
 }
 
 function downloadQuestionsTxt() {
-    
-        let data = "";
-        let i;
-        for (i = 0; i < 40; i++) {
-            data += questions[i][0]+"\t"+questions[i][1]+"\t"+questions[i][2]+"\t"+questions[i][3]+"\t"+questions[i][4]+"\n"
-        }
-    
-        download(data, 
-            (questionsFileName ? questionsFileName.replace(".txt"," ") : "questions ")+getDateString()+".txt"
-            ,"text/plain");
+
+    let data = "";
+    let i;
+    for (i = 0; i < 40; i++) {
+        data += (i+1) + "\n"
+            + questions[i][0].replace("\n") + "\n"
+            + questions[i][1].replace("\n") + "\n"
+            + questions[i][2].replace("\n") + "\n"
+            + questions[i][3].replace("\n") + "\n"
+            + questions[i][4].replace("\n") + "\n\n"
     }
 
-function getDateString(){
+    download(data,
+        (questionsFileName ? questionsFileName.replace(".txt", " ") : "questions ") + getDateString() + ".txt"
+        , "text/plain");
+}
+
+function getDateString() {
     let d = new Date();
-    return d.getFullYear() + "-" + (d.getMonth()+1)+ "-" + (d.getDate())+ "-" + (d.getHours())+ "-" + (d.getMinutes()) 
+    return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + (d.getDate()) + "-" + (d.getHours()) + "-" + (d.getMinutes())
 }
 
 function download(data, filename, type) {
@@ -466,7 +522,8 @@ document.addEventListener("keydown", (evt) => {
     }
     // flag overriding default functionality
     else if (evt.ctrlKey && evt.key == "f") {
-        event.preventDefault();
+        if (!isFindEnabled)
+            event.preventDefault();
         toggleFlagQuestion()
     }
     else if (evt.key == 1) {

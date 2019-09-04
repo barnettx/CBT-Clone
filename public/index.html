@@ -37,13 +37,15 @@
         <span style="margin-right:20px;"></span>
         <button onclick="toggleShowUserAnswers()">Your Answers</button>
 
-        <span style="margin-right:10%;"></span>
+        <span style="margin-right:50px"></span>
 
         <button onclick="toggleShowUserFile()" style="background-color: yellow">YOUR CUSTOM FILE</button>
         <button id="edit-toggle" onclick="toggleEditing()">Enable Editing</button>
         <button onclick="downloadPassagesTxt()">Save Passages</button>
         <button onclick="downloadQuestionsTxt()">Save Questions</button>
+        <span style="margin-right:50px"></span>
         <button id="fake-processing-toggle" onclick="toggleFakeProcessing()">Disable Fake Processing</button>
+        <button id="find-toggle" onclick="toggleFind()">Enable Ctrl-F find</button>
 
         <div class="timer">
             <h2 id="timer-display">Time</h2>
@@ -53,8 +55,8 @@
     </div>
     <div class="middlebar">
         <div class="passage">
-            <p id="passage-intro">INTRO</p>
-            <p id="passage"></p>
+            <div id="passage-intro">INTRO</div>
+            <div id="passage"></div>
         </div>
         <!-- <div class="questions"> -->
         <div class="questions" id="test">
