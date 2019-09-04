@@ -79,7 +79,7 @@ tinyMCEPassagePromise = tinymce.init({
             },
             onSetup: function (api) {
                 editor.on('NodeChange', function (e) {
-                    api.setActive(e.element.className.includes("Q"+currentQuestion))
+                    api.setActive(e.element.className.includes("Q" + currentQuestion))
                 });
             }
         });
@@ -117,32 +117,32 @@ questionEditor = tinymce.init({
             questionEditorDomToData();
         });
 
-        editor.on("paste", function(e){
+        editor.on("paste", function (e) {
             let paste = (event.clipboardData || window.clipboardData).getData('text');
-            
+
             (event.clipboardData || window.clipboardData).setData("text/plain", paste.toUpperCase());
         })
     },
     plugins: "paste",
     paste_as_text: true,
-    paste_preprocess: function(plugin, args) {
+    paste_preprocess: function (plugin, args) {
         console.log(args);
         console.log(args.content);
         args.content = args.content.replace(/<\/?(br)\b[^<>]*>/g, " ")
-                        .replace(" A."," </p><p>A.")
-                        .replace(" B."," </p><p>B.")
-                        .replace(" C."," </p><p>C.")
-                        .replace(" D."," </p><p>D.")
-                        .replace(" F."," </p><p>F.")
-                        .replace(" G."," </p><p>G.")
-                        .replace(" H."," </p><p>H.")
-                        .replace(" J."," </p><p>J.")
+            .replace(" A.", " </p><p>A.")
+            .replace(" B.", " </p><p>B.")
+            .replace(" C.", " </p><p>C.")
+            .replace(" D.", " </p><p>D.")
+            .replace(" F.", " </p><p>F.")
+            .replace(" G.", " </p><p>G.")
+            .replace(" H.", " </p><p>H.")
+            .replace(" J.", " </p><p>J.")
         args.content = "<p>" + args.content + "</p>";
-                        // .replace("B.","<br>B.")
-        
+        // .replace("B.","<br>B.")
+
         console.log(args.content);
         // args.content += ' preprocess';
-      },
+    },
 });
 
 
@@ -293,55 +293,93 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-
-    //fetch api
-    fetchQuestionsPromise = fetch("./questions68A.1.txt", {
-        'Content-Type': 'text/plain; charset=UTF-8'
-    })
-        .then(function (res) {
-            return res.text();
+    // check localstorage
+    if (localStorage.getItem("questions")) {
+        let localStoragePromise = new Promise(function (resolve, reject) {
+            data = JSON.parse(localStorage.getItem("questions"))
+            resolve(data)
         })
-        .then(function (data) {
-            data = data.split(/\n\s*\n/);
-            let i;
-            questions = [];
-            for (i = 0; i < 40; i++) {
-                let row = data[i].split(/\n/);
-                row.shift();                                
-                questions.push(row);
-            }
-            render();
-        });
 
-    Promise.all([questionEditor, fetchQuestionsPromise])
-        .then(() => {
-            tinymce.get("question-editor").setContent(
-                "<p>" + questions[currentQuestion - 1][0] + "</p>"
-                + "<p>" + questions[currentQuestion - 1][1] + "</p>"
-                + "<p>" + questions[currentQuestion - 1][2] + "</p>"
-                + "<p>" + questions[currentQuestion - 1][3] + "</p>"
-                + "<p>" + questions[currentQuestion - 1][4] + "</p>", { format: "raw" })
-        });
-    //init passage old version 
-    // refreshPassage();
+        Promise.all([tinyMCEPassagePromise, localStoragePromise])
+            .then((data) => {
+                questions = data[1];
+                render();
+                tinymce.get("question-editor").setContent(
+                    "<p>" + questions[currentQuestion - 1][0] + "</p>"
+                    + "<p>" + questions[currentQuestion - 1][1] + "</p>"
+                    + "<p>" + questions[currentQuestion - 1][2] + "</p>"
+                    + "<p>" + questions[currentQuestion - 1][3] + "</p>"
+                    + "<p>" + questions[currentQuestion - 1][4] + "</p>", { format: "raw" })
 
-    //init passage with single document
-    fetchPassagesPromise = fetch("./passage68A.txt")
-        .then(function (res) {
-            return res.text()
+            });
+    } else {
+        //fetch api
+        fetchQuestionsPromise = fetch("./questions68A.1.txt", {
+            'Content-Type': 'text/plain; charset=UTF-8'
         })
-    // .then(function (data) {
-    //     dataToPassage(data)
-    //     render();
-    // })
+            .then(function (res) {
+                return res.text();
+            })
+            .then(function (data) {
+                data = data.split(/\n\s*\n/);
+                let i;
+                questions = [];
+                for (i = 0; i < 40; i++) {
+                    let row = data[i].split(/\n/);
+                    row.shift();
+                    questions.push(row);
+                }
+                render();
+            });
 
-    //Wait for both tinymce to load and data to be fetched
-    Promise.all([tinyMCEPassagePromise, fetchPassagesPromise])
-        .then((data) => {
-            console.log(data)
-            dataToPassage(data[1])
-            render();
-        });
+        Promise.all([questionEditor, fetchQuestionsPromise])
+            .then(() => {
+                tinymce.get("question-editor").setContent(
+                    "<p>" + questions[currentQuestion - 1][0] + "</p>"
+                    + "<p>" + questions[currentQuestion - 1][1] + "</p>"
+                    + "<p>" + questions[currentQuestion - 1][2] + "</p>"
+                    + "<p>" + questions[currentQuestion - 1][3] + "</p>"
+                    + "<p>" + questions[currentQuestion - 1][4] + "</p>", { format: "raw" })
+            });
+    }
+
+    //try loading from localstorage
+    if (localStorage.getItem("passageIntros") && localStorage.getItem("passages")) {
+        
+        let localStoragePromise = new Promise(function (resolve, reject) {
+            let data = {};
+            data.passageIntros = JSON.parse(localStorage.getItem("passageIntros"))
+            data.passages = JSON.parse(localStorage.getItem("passages"))
+            resolve(data)
+        })
+
+        Promise.all([tinyMCEPassagePromise, localStoragePromise])
+            .then((data) => {
+                passageIntros = data[1].passageIntros;
+                passages = data[1].passages;
+                renderPassage();
+                render();
+            });
+
+    } else {
+        //init passage with single document
+        fetchPassagesPromise = fetch("./passage68A.txt")
+            .then(function (res) {
+                return res.text()
+            })
+        // .then(function (data) {
+        //     dataToPassage(data)
+        //     render();
+        // })
+
+        //Wait for both tinymce to load and data to be fetched
+        Promise.all([tinyMCEPassagePromise, fetchPassagesPromise])
+            .then((data) => {
+                console.log(data)
+                dataToPassage(data[1])
+                render();
+            });
+    }
 
 
     //render timer
@@ -399,13 +437,13 @@ document.addEventListener("DOMContentLoaded", function () {
         questionsFileName = document.querySelector("#custom-questions").files[0].name;
         document.querySelector("#custom-questions").files[0].text()
             .then((data) => {
-                
+
                 data = data.split(/\n\s*\n/);
                 if (!validQuestionsData(data)) {
                     alert("Invalid Questions Txt. Please Check Again.")
                     return
                 }
-                
+
                 let i;
                 questions = [];
                 for (i = 0; i < 40; i++) {
@@ -426,6 +464,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 }, false);
 
+// save to localstorage on closing
+window.addEventListener("beforeunload", function () {
+    localStorage.setItem("passageIntros", JSON.stringify(passageIntros));
+    localStorage.setItem("passages", JSON.stringify(passages));
+    localStorage.setItem("questions", JSON.stringify(questions));
+})
+
 function validPassagesData(data) {
     data = data.split("***");
     data.shift();
@@ -436,6 +481,9 @@ function dataToPassage(data) {
     data = data.split("***");
     //remove the first empty one
     data.shift();
+
+    passagesIntros = new Array(4);
+    passages = new Array(4);
     passageIntros[0] = data[1]
     passages[0] = data[3]
     passageIntros[1] = data[5]
@@ -474,7 +522,7 @@ function downloadQuestionsTxt() {
     let data = "";
     let i;
     for (i = 0; i < 40; i++) {
-        data += (i+1) + "\n"
+        data += (i + 1) + "\n"
             + questions[i][0].replace("\n") + "\n"
             + questions[i][1].replace("\n") + "\n"
             + questions[i][2].replace("\n") + "\n"
